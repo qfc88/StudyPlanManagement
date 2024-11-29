@@ -22,7 +22,7 @@ public class SecurityConfig {
 
                 // .formLogin(form -> form.defaultSuccessUrl("/homepage", true));
             .oauth2Login(oauth2 -> 
-                    oauth2.defaultSuccessUrl("/", true));
+                    oauth2.defaultSuccessUrl("/home", true));
 
             return http.build();
     }
