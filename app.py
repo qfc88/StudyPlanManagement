@@ -51,15 +51,3 @@ async def edusoftlogin(username, password):
         return send_file(path, as_attachment=True)
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="80")
-
-
-        # timetable_temp = await page.evaluate('(rows) => rows.map(row => row.innerText)', timetableRows)
-        # # print(timetableRows)
-        # timetableRows = await page.evaluate('(rows) => rows.map(row => row.innerText)', timetableRows)
-        # print(timetableRows)
-        # render = render_template('timetable.html', timetable=timetableRows)
-
-        # html = await page.content()
-        # soup = BeautifulSoup(html, 'html.parser')
-        # result = soup.text
-        # await browser.close()
