@@ -1,23 +1,17 @@
-# Event Calendar in Django
-
-https://www.youtube.com/watch?v=HvnPeeLEVq0&t=0s
-
-# Demo
-![image](https://user-images.githubusercontent.com/39632170/123464377-88ec3600-d60e-11eb-8df6-88a138d23126.png)
-
+# Study Plan Management
 
 ## How To Setup
 ```
-git clone https://github.com/sajib1066/event-calendar.git
+git clone https://github.com/qfc88/StudyPlanManagement/
 ```
 ```
-cd event-calendar
+cd StudyPlanManagement
 ```
 ```
-python3 -m venv venv
+conda create -n "calendar" python=3.12
 ```
 ```
-source venv/bin/activate
+conda activate calendar
 ```
 ```
 pip install -r requirements.txt
