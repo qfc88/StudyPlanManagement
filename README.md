@@ -2,7 +2,7 @@
 
 ## How To Setup
 ```
-git clone https://github.com/qfc88/StudyPlanManagement/
+git clone https://github.com/qfc88/StudyPlanManagement.git/
 ```
 ```
 cd StudyPlanManagement
