@@ -14,7 +14,9 @@ from .other_views import (
     next_week,
     next_day,
     modify_event,
-    
+    ExternalServicesView,
+    process_edusoft,     
+    process_blackboard,
 )
 
 
@@ -42,4 +44,7 @@ __all__ = [
     UpcomingTasksListView,
     delete_task,
     modify_task,
+    ExternalServicesView,
+    process_edusoft,     
+    process_blackboard,
 ]

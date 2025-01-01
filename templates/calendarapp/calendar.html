@@ -57,82 +57,133 @@
                 <div id="calendar"></div>
             </div>
 
-            <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <!-- Type Selection Modal -->
+            <!-- <div class="modal fade" id="typeSelectionModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header bg-primary">
-                            <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Event</h5>
+                            <h5 class="modal-title text-white">Add New Item</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <button id="createEventBtn" class="btn btn-primary m-2">Create Event</button>
+                            <button id="createTaskBtn" class="btn btn-success m-2">Create Task</button>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+
+            <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white">Create New Item</h5>
                             <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="modal-body">
+                        <div class="modal-body">
+                            <div class="form-group mb-4">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="eventRadio" name="itemType" class="custom-control-input" value="event" checked>
+                                    <label class="custom-control-label" for="eventRadio">
+                                        <i class="fa fa-calendar text-primary"></i> Event
+                                    </label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="taskRadio" name="itemType" class="custom-control-input" value="task">
+                                    <label class="custom-control-label" for="taskRadio">
+                                        <i class="fa fa-tasks text-success"></i> Task
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Event Form -->
+                            <form id="eventForm" method="post">
+                                {% csrf_token %}
                                 <div class="form-group">
-                                    <label for="recipient-name" class="col-form-label">Event Title:</label>
+                                    <label>Title:</label>
                                     {{ form.title }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label">Description:</label>
+                                    <label>Description:</label>
                                     {{ form.description }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label">Start Date:</label>
+                                    <label>Start Time:</label>
                                     {{ form.start_time }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label">End Date:</label>
+                                    <label>End Time:</label>
                                     {{ form.end_time }}
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button id="modalClose2" type="button" class="btn btn-danger">Close</button>
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Event</button>
+                                </div>
+                            </form>
+
+                            <!-- Task Form -->
+                            <form id="taskForm" method="post" action="{% url 'calendarapp:task_new' %}" style="display: none;">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label>Title:</label>
+                                    <input type="text" name="title" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description:</label>
+                                    <textarea name="description" class="form-control" rows="4" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Deadline:</label>
+                                    <input type="datetime-local" name="deadline" class="form-control" required>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-success">Save Task</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal fade show" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header bg-primary">
-                          <h5 class="modal-title text-white" id="title_event_detail"></h5>
-                          <button id="modalDetailClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                          </button>
-                      </div>
-                      <form method="">
-                          {% csrf_token %}
-                          <div class="modal-body">
-                              
-                              <div class="form-group">
-                                  <label for="message-text" class="col-form-label">Description:</label>
-                                  <p id = "description_event_detail">
-
-                                  </p>
-                              </div>
-                              <div class="form-group">
-                                  <label for="message-text" class="col-form-label">Start:</label>
-                                  <p id = "start_event_detail">
-                              </div>
-                              <div class="form-group">
-                                  <label for="message-text" class="col-form-label">End:</label>
-                                  <p id = "end_event_detail">
-                              </div>
-                          </div>
-                          <div class="modal-footer">
-                              <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
-                              <button id="modify-event-button" data-event-id="" type="button" class="btn btn-primary">Modify</button>
-                              <button id="add-to-next-week" data-event-id-week="" type="button" class="btn btn-success">Next Week</button>
-                              <button id="add-to-next-day" data-event-id-day="" type="button" class="btn btn-primary">Next Day</button>
-
-                          </div>
-                      </form>
-                  </div>
-              </div>
-          </div>
+            <!-- Fixed Detail Modal -->
+            <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white" id="title_event_detail"></h5>
+                            <button id="modalDetailClose" type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="col-form-label">Description:</label>
+                                <p id="description_event_detail"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">Start:</label>
+                                <p id="start_event_detail"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">End:</label>
+                                <p id="end_event_detail"></p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" id="current_event_id" value="" />
+                            <button id="delete-event-button" type="button" class="btn btn-danger">Delete</button>
+                            <button id="modify-event-button" type="button" class="btn btn-primary">Modify</button>
+                            <button id="add-to-next-week" type="button" class="btn btn-success">Next Week</button>
+                            <button id="add-to-next-day" type="button" class="btn btn-primary">Next Day</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -169,14 +220,28 @@
         selectable: true,
         selectMirror: true,
         select: function(arg) {
-          console.log('clicked')
-          console.log(arg.start)
-          console.log(arg.end)
-          var modal = document.getElementById('eventModal')
-          modal.style.display = 'block'
-          document.getElementById('id_start_time').value = converterDataParaDjangoFormat(arg.start);
-          document.getElementById('id_end_time').value = converterDataParaDjangoFormat(arg.end);
-          calendar.unselect()
+            var modal = document.getElementById('createModal');
+    
+            
+            document.getElementById('id_start_time').value = converterDataParaDjangoFormat(arg.start);
+            document.getElementById('id_end_time').value = converterDataParaDjangoFormat(arg.end);
+            document.querySelector('#taskForm input[name="deadline"]').value = 
+                arg.start.toISOString().slice(0, 16);
+
+            document.querySelectorAll('input[name="itemType"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'event') {
+                        document.getElementById('eventForm').style.display = 'block';
+                        document.getElementById('taskForm').style.display = 'none';
+                    } else {
+                        document.getElementById('eventForm').style.display = 'none';
+                        document.getElementById('taskForm').style.display = 'block';
+                    }
+                });
+            });
+
+            $(modal).modal('show');
+            calendar.unselect();
         },
         
         // THIS KEY WON'T WORK IN PRODUCTION!!!
@@ -194,6 +259,12 @@
           var end = formatDateTime(arg.event.end);
           var description = arg.event.extendedProps.description || '';
           var id = arg.event.id;
+
+            document.getElementById('title_event_detail').textContent = title;
+            document.getElementById('description_event_detail').textContent = description;
+            document.getElementById('start_event_detail').textContent = start;
+            document.getElementById('end_event_detail').textContent = end;
+            document.getElementById('current_event_id').value = id;
 
           var modalInputEnd = document.getElementById('end_event_detail'); 
 
@@ -220,7 +291,10 @@
           
          
           modal.style.display = 'block';
+          $('#detailModal').modal('show');
         },
+
+        
         // Find this section in templates/calendarapp/calendar.html
 
         editable: true,
@@ -276,6 +350,90 @@
       });
 
       calendar.render();
+
+
+      document.getElementById('delete-event-button').addEventListener('click', function() {
+        const eventId = document.getElementById('current_event_id').value;
+        if (!eventId) return;
+
+        if (confirm('Are you sure you want to delete this event?')) {
+            $.ajax({
+                url: `/delete_event/${eventId}/`,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                success: function(response) {
+                    $('#detailModal').modal('hide');
+                    calendar.refetchEvents();
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting event: ' + error);
+                }
+            });
+        }
+    });
+
+    // Modify Event Handler
+    document.getElementById('modify-event-button').addEventListener('click', function() {
+        const eventId = document.getElementById('current_event_id').value;
+        if (!eventId) return;
+        window.location.href = `/modify_event/${eventId}/`;
+    });
+
+    // Next Week Handler
+    document.getElementById('add-to-next-week').addEventListener('click', function() {
+        const eventId = document.getElementById('current_event_id').value;
+        if (!eventId) return;
+
+        if (confirm('Are you sure you want to add this event to next week?')) {
+            $.ajax({
+                url: `/next_week/${eventId}/`,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                success: function(response) {
+                    $('#detailModal').modal('hide');
+                    calendar.refetchEvents();
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error copying event: ' + error);
+                }
+            });
+        }
+    });
+
+    // Next Day Handler
+    document.getElementById('add-to-next-day').addEventListener('click', function() {
+        const eventId = document.getElementById('current_event_id').value;
+        if (!eventId) return;
+
+        if (confirm('Are you sure you want to add this event to next day?')) {
+            $.ajax({
+                url: `/next_day/${eventId}/`,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                success: function(response) {
+                    $('#detailModal').modal('hide');
+                    calendar.refetchEvents();
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error copying event: ' + error);
+                }
+            });
+        }
+    });
+
+    // Modal Close Handler
+    document.getElementById('modalDetailClose').addEventListener('click', function() {
+        $('#detailModal').modal('hide');
+    });
     });
     const closeBtn1 = document.getElementById('modalClose1');
     const closeBtn2 = document.getElementById('modalClose2');
@@ -297,75 +455,19 @@
       const dataFormatada = new Date(dateTime).toLocaleDateString('en-US', options);
       return dataFormatada;
     };
-    document.getElementById('delete-event-button').addEventListener('click', function() {
-      const eventId = this.getAttribute('data-event-id');
-      if (confirm('Are you sure you want to delete this event?')) {
-          $.ajax({
-              url: `/delete_event/${eventId}/`,
-              type: 'POST',
-              data: {
-                  csrfmiddlewaretoken: '{{ csrf_token }}',
-              },
-              success: function(response) {
-                  alert(response.message);
-                  window.location.reload();
-              },
-              error: function(xhr, status, error) {
-                  alert('Error!');
-              }
-          
-          });
-      }});
-    
-      document.getElementById('modify-event-button').addEventListener('click', function() {
-            const eventId = this.getAttribute('data-event-id');
-            if (eventId) {
-                window.location.href = `/modify_event/${eventId}/`;
-            } else {
-            alert('Error: Event ID not found');
-        }
-        });
-      
-      document.getElementById('add-to-next-week').addEventListener('click', function() {
-          const eventId = this.getAttribute('data-event-id-week');
-          if (confirm('Are you sure you want add this event to next week?')) {
-              $.ajax({
-                url: `/next_week/${eventId}/`,
-                  type: 'POST',
-                  data: {
-                      csrfmiddlewaretoken: '{{ csrf_token }}',
-                  },
-                  success: function(response) {
-                      alert(response.message);
-                      window.location.reload();
-                  },
-                  error: function(xhr, status, error) {
-                      alert('Error!');
-                  }
-              });
-          }
-  });
 
-  document.getElementById('add-to-next-day').addEventListener('click', function() {
-    const eventId = this.getAttribute('data-event-id-day');
-    if (confirm('Are you sure you want add this event to next day?')) {
-        $.ajax({
-          url: `/next_day/${eventId}/`,
-            type: 'POST',
-            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            success: function(response) {
-                alert(response.message);
-                window.location.reload();
-            },
-            error: function(xhr, status, error) {
-                alert('Error!');
-            }
-        });
-    }
+
+document.getElementById('modalClose1').addEventListener('click', function() {
+    $('#eventModal').modal('hide');
 });
 
+document.getElementById('modalClose2').addEventListener('click', function() {
+    $('#eventModal').modal('hide');
+});
+
+document.getElementById('modalDetailClose').addEventListener('click', function() {
+    $('#detailModal').modal('hide');
+});
 
 
 </script>

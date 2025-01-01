@@ -1,5 +1,5 @@
 # cal/views.py
-
+from django.views.generic import View
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views import generic
@@ -10,11 +10,27 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_http_methods
+
+from django.http import JsonResponse
+import json
+from ..services.sync_service import SyncService
 
 from calendarapp.models import EventMember, Event, TaskMember, Task
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
+
+
+
+class ExternalServicesView(LoginRequiredMixin, View):
+    """View for external services integration"""
+    login_url = "accounts:signin"
+    template_name = "calendarapp/external_services.html"
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        return render(request, self.template_name, context)
 
 
 def get_date(req_day):
@@ -199,3 +215,50 @@ def next_day(request, event_id):
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
 
+
+
+@login_required
+@require_http_methods(["POST"])
+async def process_edusoft(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Username and password are required'
+            }, status=400)
+
+        result = await SyncService.sync_edusoft_schedule(request.user, username, password)
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@login_required
+@require_http_methods(["POST"])
+async def process_blackboard(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Username and password are required'
+            }, status=400)
+
+        result = await SyncService.sync_blackboard_tasks(request.user, username, password)
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)

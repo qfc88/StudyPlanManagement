@@ -1,0 +1,252 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}External Services{% endblock title %}
+
+{% block breadcrumb %}
+    <div>
+        <h1><i class="fa fa-cloud"></i> External Services</h1>
+        <p>Connect to IU Learning Platforms</p>
+    </div>
+    <ul class="app-breadcrumb breadcrumb">
+        <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
+        <li class="breadcrumb-item"><a>External Services</a></li>
+    </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<!-- Warning Modal -->
+<div class="modal fade" id="warningModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark">⚠️ Warning</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Important Notice:</strong></p>
+                <p>By proceeding with the sync process:</p>
+                <ul>
+                    <li>All your existing events/tasks will be deleted</li>
+                    <li>New events/tasks will be created from the sync</li>
+                    <li>This action cannot be undone</li>
+                </ul>
+                <p>Are you sure you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirmSync">Continue Sync</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Blackboard Integration -->
+    <div class="col-md-6">
+        <div class="tile">
+            <div class="tile-title-w-btn">
+                <h3 class="title">
+                    <i class="fa fa-graduation-cap"></i> Blackboard
+                </h3>
+            </div>
+            <div class="tile-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> Syncs your assignments and deadlines from Blackboard
+                </div>
+                <form id="blackboardForm" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="control-label">Username</label>
+                        <input class="form-control" type="text" name="username" placeholder="Enter your Blackboard username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Password</label>
+                        <input class="form-control" type="password" name="password" placeholder="Enter your Blackboard password" required>
+                    </div>
+                    <div class="tile-footer">
+                        <button class="btn btn-primary" type="submit" id="bb-submit">
+                            <i class="fa fa-fw fa-lg fa-sync"></i>Sync Blackboard Tasks
+                        </button>
+                    </div>
+                </form>
+                <!-- Progress Display -->
+                <div id="bb-progress" class="mt-4" style="display: none;">
+                    <div class="progress-info mb-2">
+                        <div class="step-info">
+                            <span id="bb-current-step">Authentication</span>
+                            <small class="text-muted" id="bb-step-detail"></small>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div id="bb-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <!-- Results Display -->
+                <div id="bb-results" class="mt-3" style="display: none;">
+                    <hr>
+                    <h5>Sync Results:</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fa fa-check-circle text-success"></i> <span id="bb-tasks-created">0</span> tasks created</li>
+                        <li><i class="fa fa-clock-o text-info"></i> <span id="bb-processing-time">0</span> seconds</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edusoft Integration -->
+    <div class="col-md-6">
+        <div class="tile">
+            <div class="tile-title-w-btn">
+                <h3 class="title">
+                    <i class="fa fa-university"></i> Edusoftweb
+                </h3>
+            </div>
+            <div class="tile-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> Syncs your class schedule from Edusoftweb
+                </div>
+                <form id="edusoftForm" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="control-label">Username</label>
+                        <input class="form-control" type="text" name="username" placeholder="Enter your Edusoftweb username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Password</label>
+                        <input class="form-control" type="password" name="password" placeholder="Enter your Edusoftweb password" required>
+                    </div>
+                    <div class="tile-footer">
+                        <button class="btn btn-primary" type="submit" id="es-submit">
+                            <i class="fa fa-fw fa-lg fa-sync"></i>Sync Class Schedule
+                        </button>
+                    </div>
+                </form>
+                <!-- Progress Display -->
+                <div id="es-progress" class="mt-4" style="display: none;">
+                    <div class="progress-info mb-2">
+                        <div class="step-info">
+                            <span id="es-current-step">Authentication</span>
+                            <small class="text-muted" id="es-step-detail"></small>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div id="es-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <!-- Results Display -->
+                <div id="es-results" class="mt-3" style="display: none;">
+                    <hr>
+                    <h5>Sync Results:</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fa fa-check-circle text-success"></i> <span id="es-files-processed">0</span> semesters processed</li>
+                        <li><i class="fa fa-calendar text-primary"></i> <span id="es-events-created">0</span> events created</li>
+                        <li><i class="fa fa-clock-o text-info"></i> <span id="es-processing-time">0</span> seconds</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let pendingFormSubmission = null;
+    const startTime = Date.now();
+
+    function updateProgress(prefix, step, progress) {
+        const progressBar = document.getElementById(`${prefix}-progress-bar`);
+        const currentStep = document.getElementById(`${prefix}-current-step`);
+        const stepDetail = document.getElementById(`${prefix}-step-detail`);
+        const progressDiv = document.getElementById(`${prefix}-progress`);
+
+        progressDiv.style.display = 'block';
+        progressBar.style.width = `${progress}%`;
+        currentStep.textContent = step;
+        
+        const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(1);
+        stepDetail.textContent = `${elapsedTime}s elapsed`;
+    }
+
+    function showResults(prefix, data) {
+        const resultsDiv = document.getElementById(`${prefix}-results`);
+        resultsDiv.style.display = 'block';
+
+        if (prefix === 'es') {
+            document.getElementById('es-files-processed').textContent = data.files_processed || 0;
+            document.getElementById('es-events-created').textContent = data.events_created || 0;
+            document.getElementById('es-processing-time').textContent = 
+                ((Date.now() - startTime) / 1000).toFixed(1);
+        } else {
+            document.getElementById('bb-tasks-created').textContent = data.tasks_created || 0;
+            document.getElementById('bb-processing-time').textContent = 
+                ((Date.now() - startTime) / 1000).toFixed(1);
+        }
+    }
+
+    async function handleFormSubmission(form, isBlackboard) {
+        const prefix = isBlackboard ? 'bb' : 'es';
+        const progressDiv = document.getElementById(`${prefix}-progress`);
+        const resultsDiv = document.getElementById(`${prefix}-results`);
+
+        progressDiv.style.display = 'none';
+        resultsDiv.style.display = 'none';
+
+        try {
+            // Authentication
+            updateProgress(prefix, 'Authentication', 25);
+            const formData = new FormData(form);
+            
+            // Data Scraping
+            updateProgress(prefix, 'Scraping Data', 50);
+            
+            const response = await fetch(`/process-${isBlackboard ? 'blackboard' : 'edusoft'}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                })
+            });
+
+            // Processing
+            updateProgress(prefix, 'Processing Data', 75);
+            
+            const data = await response.json();
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
+
+            // Complete
+            updateProgress(prefix, 'Completed', 100);
+            showResults(prefix, data.data);
+            
+            // Success notification
+            alert('Sync completed successfully!');
+            
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    // Form submission handlers
+    document.getElementById('blackboardForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await handleFormSubmission(this, true);
+    });
+
+    document.getElementById('edusoftForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await handleFormSubmission(this, false);
+    });
+});
+</script>
+{% endblock extrascripts %}

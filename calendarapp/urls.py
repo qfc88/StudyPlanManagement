@@ -1,11 +1,13 @@
 from django.urls import path
 
 from . import views
+from .views.other_views import ExternalServicesView 
 
 app_name = "calendarapp"
 
 
 urlpatterns = [
+    path('external-services/', ExternalServicesView.as_view(), name='external_services'),
     path("task/new/", views.TaskCreateView.as_view(), name="task_new"),
     path("task/<int:pk>/edit/", views.TaskUpdateView.as_view(), name="task_edit"),
     path("task/<int:pk>/delete/", views.TaskDeleteView.as_view(), name="task_delete"),
@@ -47,4 +49,6 @@ urlpatterns = [
     path("upcoming-tasks-list/", views.UpcomingTasksListView.as_view(), name="upcoming_tasks"),
     path('delete_task/<int:task_id>/', views.delete_task, name='delete_task'),
     path('modify_task/<int:task_id>/', views.modify_task, name='modify_task'),
+    path('process-edusoft/', views.process_edusoft, name='process_edusoft'),
+    path('process-blackboard/', views.process_blackboard, name='process_blackboard'),
 ]
