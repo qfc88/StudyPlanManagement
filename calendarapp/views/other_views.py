@@ -17,9 +17,9 @@ from django.http import JsonResponse
 import json
 from ..services.sync_service import SyncService
 
-from calendarapp.models import EventMember, Event, TaskMember, Task
+from calendarapp.models import Event, TaskMember, Task
 from calendarapp.utils import Calendar
-from calendarapp.forms import EventForm, AddMemberForm
+from calendarapp.forms import EventForm
 
 
 
@@ -104,27 +104,6 @@ def event_details(request, event_id):
     return render(request, "event-details.html", context)
 
 
-def add_eventmember(request, event_id):
-    forms = AddMemberForm()
-    if request.method == "POST":
-        forms = AddMemberForm(request.POST)
-        if forms.is_valid():
-            member = EventMember.objects.filter(event=event_id)
-            event = Event.objects.get(id=event_id)
-            if member.count() <= 9:
-                user = forms.cleaned_data["user"]
-                EventMember.objects.create(event=event, user=user)
-                return redirect("calendarapp:calendar")
-            else:
-                print("--------------User limit exceed!-----------------")
-    context = {"form": forms}
-    return render(request, "add_member.html", context)
-
-
-class EventMemberDeleteView(generic.DeleteView):
-    model = EventMember
-    template_name = "event_delete.html"
-    success_url = reverse_lazy("calendarapp:calendar")
 
 class CalendarViewNew(LoginRequiredMixin, generic.View):
     login_url = "accounts:signin"

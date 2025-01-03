@@ -1,7 +1,7 @@
 
 
 # Official Python runtime
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # Project work directorty
 WORKDIR /usr/src/app
@@ -11,6 +11,8 @@ COPY . .
 
 # Install module dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN playwright install
 
 # Make migrations, as described in the install tutorial from the original repository
 RUN python manage.py makemigrations && python manage.py migrate

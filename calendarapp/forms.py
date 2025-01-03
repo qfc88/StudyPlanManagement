@@ -1,5 +1,5 @@
 from django.forms import ModelForm, DateInput
-from calendarapp.models import Event, EventMember, Task, TaskMember
+from calendarapp.models import Event, Task, TaskMember
 from django import forms
 
 
@@ -69,7 +69,3 @@ class TaskForm(forms.ModelForm):
             # Format existing deadline for datetime-local input
             self.fields['deadline'].initial = self.instance.deadline.strftime("%Y-%m-%dT%H:%M")
 
-class AddMemberForm(forms.ModelForm):
-    class Meta:
-        model = EventMember
-        fields = ["user"]
