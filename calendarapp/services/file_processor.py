@@ -439,11 +439,79 @@ class FileProcessor:
     def _parse_deadline(self, date_str, time_str):
         """Parse deadline from date and time strings"""
         try:
-            date_obj = datetime.strptime(date_str, '%m/%d/%Y').date()
-            time_obj = datetime.strptime(time_str, '%I:%M %p').time()
-            return datetime.combine(date_obj, time_obj)
+            # Handle NaN, float, and None values
+            if pd.isna(date_str):
+                return None
+            if date_str == 'No due date':
+                return datetime(2099, 1, 1, 23, 59, 59)
+
+            # Convert float to string if needed
+            if isinstance(date_str, float):
+                # Assuming float represents Excel date number
+                date_str = pd.Timestamp.fromordinal(int(date_str)).strftime('%m/%d/%Y')
+            else:
+                # Ensure we have a string
+                date_str = str(date_str).strip()
+
+            # Handle time string
+            if pd.isna(time_str):
+                time_str = None
+            elif isinstance(time_str, float):
+                # Convert float time to string if needed
+                hours = int(time_str)
+                minutes = int((time_str - hours) * 60)
+                time_str = f"{hours:02d}:{minutes:02d}"
+            else:
+                time_str = str(time_str).strip() if time_str else None
+
+            # Try different date formats
+            date_formats = [
+                '%m/%d/%Y',                          # e.g., 12/31/2024
+                '%A, %B %d, %Y',                     # e.g., Wednesday, October 2, 2024
+                '%Y-%m-%d'                           # e.g., 2024-12-31
+            ]
+
+            parsed_date = None
+            for date_format in date_formats:
+                try:
+                    parsed_date = datetime.strptime(date_str, date_format).date()
+                    break
+                except ValueError:
+                    continue
+
+            if not parsed_date:
+                logger.warning(f"Could not parse date: {date_str}")
+                return None
+
+            if not time_str or time_str == 'No due time':
+                # Default to end of day if no time specified
+                return datetime.combine(parsed_date, datetime.max.time())
+            
+
+            try:
+                # Try different time formats
+                time_formats = ['%I:%M %p', '%H:%M', '%H:%M:%S']
+                parsed_time = None
+                for time_format in time_formats:
+                    try:
+                        parsed_time = datetime.strptime(time_str, time_format).time()
+                        break
+                    except ValueError:
+                        continue
+
+                if parsed_time:
+                    return datetime.combine(parsed_date, parsed_time)
+                else:
+                    # Default to end of day if time parsing fails
+                    return datetime.combine(parsed_date, datetime.max.time())
+            except Exception as e:
+                logger.error(f"Error parsing time: {str(e)}")
+                # Default to end of day if time parsing fails
+                return datetime.combine(parsed_date, datetime.max.time())
+
         except Exception as e:
-            raise Exception(f"Error parsing deadline: {str(e)}")
+            logger.error(f"Error parsing deadline: {str(e)}")
+            return None
         
     @sync_to_async
     def _create_recurring_events(self, course_data):
@@ -510,7 +578,6 @@ class FileProcessor:
     
     
     async def process_blackboard_csv(self, username, file_path):
-        
         try:
             # Clear existing data first
             clear_result = await self.clear_task_data()
@@ -526,9 +593,11 @@ class FileProcessor:
                 tasks_created = 0
                 
                 for _, row in df.iterrows():
-                    if pd.notna(row['due_date']) and pd.notna(row['due_time']):
-                        try:
-                            deadline = self._parse_deadline(row['due_date'], row['due_time'])
+                    try:
+                        deadline = self._parse_deadline(row['due_date'], row['due_time'])
+                        
+                        # Only create task if there's a valid deadline
+                        if deadline:
                             title = row['task_name']
                             course_name = f"{row['name']}{'(Lab)' if row['is_lab'] else ''}"
                             
@@ -545,10 +614,12 @@ class FileProcessor:
                             )
                             if created:
                                 tasks_created += 1
-                        except Exception as e:
-                            logger.error(f"Error creating task: {str(e)}")
-                            continue
+                                logger.info(f"Created task: {title} with deadline {deadline}")
                             
+                    except Exception as e:
+                        logger.error(f"Error creating task: {str(e)}")
+                        continue
+                        
                 return {
                     'status': 'success',
                     'tasks_created': tasks_created,

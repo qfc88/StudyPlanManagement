@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function handleFormSubmission(form, isBlackboard) {
+    async function handleSyncProcess(form, isBlackboard) {
         const prefix = isBlackboard ? 'bb' : 'es';
         const progressDiv = document.getElementById(`${prefix}-progress`);
         const resultsDiv = document.getElementById(`${prefix}-results`);
@@ -198,11 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsDiv.style.display = 'none';
 
         try {
-            // Authentication
             updateProgress(prefix, 'Authentication', 25);
             const formData = new FormData(form);
             
-            // Data Scraping
             updateProgress(prefix, 'Scraping Data', 50);
             
             const response = await fetch(`/process-${isBlackboard ? 'blackboard' : 'edusoft'}/`, {
@@ -217,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
 
-            // Processing
             updateProgress(prefix, 'Processing Data', 75);
             
             const data = await response.json();
@@ -225,11 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(data.message);
             }
 
-            // Complete
             updateProgress(prefix, 'Completed', 100);
             showResults(prefix, data.data);
             
-            // Success notification
             alert('Sync completed successfully!');
             
         } catch (error) {
@@ -237,15 +232,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Form submission handlers
-    document.getElementById('blackboardForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        await handleFormSubmission(this, true);
+    // Initial form submission - shows warning modal
+    async function handleFormSubmission(form, isBlackboard) {
+        pendingFormSubmission = { form, isBlackboard };
+        $('#warningModal').modal('show');
+    }
+
+    // Confirm button handler
+    document.getElementById('confirmSync').addEventListener('click', async function() {
+        if (!pendingFormSubmission) return;
+        
+        const { form, isBlackboard } = pendingFormSubmission;
+        $('#warningModal').modal('hide');
+        await handleSyncProcess(form, isBlackboard);
+        pendingFormSubmission = null;
     });
 
-    document.getElementById('edusoftForm').addEventListener('submit', async function(e) {
+    // Form submission handlers
+    document.getElementById('blackboardForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        await handleFormSubmission(this, false);
+        handleFormSubmission(this, true);
+    });
+
+    document.getElementById('edusoftForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleFormSubmission(this, false);
     });
 });
 </script>
