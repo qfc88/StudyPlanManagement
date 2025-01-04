@@ -22,9 +22,9 @@ urlpatterns = [
     path("event/<int:event_id>/details/", views.event_details, name="event-detail"),
     path("all-event-list/", views.AllEventsListView.as_view(), name="all_events"),
     path(
-        "running-event-list/",
-        views.RunningEventsListView.as_view(),
-        name="running_events",
+        "today-event-list/",
+        views.TodayEventsListView.as_view(),
+        name="today_events",
     ),
     path(
         "upcoming-event-list/",

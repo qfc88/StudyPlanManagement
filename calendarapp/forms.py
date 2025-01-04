@@ -1,5 +1,5 @@
 from django.forms import ModelForm, DateInput
-from calendarapp.models import Event, Task, TaskMember
+from calendarapp.models import Event, Task
 from django import forms
 
 

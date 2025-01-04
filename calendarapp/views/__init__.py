@@ -1,4 +1,4 @@
-from .event_list import AllEventsListView, CompletedEventsListView, RunningEventsListView, UpcomingEventsListView
+from .event_list import AllEventsListView, CompletedEventsListView, TodayEventsListView, UpcomingEventsListView
 from .task_list import AllTasksListView, TodayTasksListView, UpcomingTasksListView, IncompletedTasksListView
 from .task_views import TaskCreateView, TaskUpdateView, TaskDeleteView
 from .task_views import delete_task, modify_task
@@ -20,7 +20,7 @@ from .other_views import (
 
 __all__ = [
     AllEventsListView,
-    RunningEventsListView,
+    TodayEventsListView,
     UpcomingEventsListView,
     CompletedEventsListView,
     CalendarViewNew,

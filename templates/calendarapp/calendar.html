@@ -27,8 +27,8 @@
                         <h4 class="mb-3">Current Activities</h4>
                         
                         <!-- Running Events Section -->
-                        <h5 class="text-primary mb-2">Running Events</h5>
-                        {% for event in running_events %}
+                        <h5 class="text-primary mb-2">Today Events</h5>
+                        {% for event in today_events %}
                             <div class="fc-event mb-2">
                                 <h6 class="mb-1">{{ event.title }}</h6>
                                 <p class="small mb-1">{{ event.description }}</p>
@@ -36,7 +36,7 @@
                                 <p class="small mb-1">To: {{ event.end_time|date:"g:i A" }}</p>
                             </div>
                         {% empty %}
-                            <p class="text-muted">No running events</p>
+                            <p class="text-muted">No today for events</p>
                         {% endfor %}
             
                         <!-- Today's Tasks Section -->

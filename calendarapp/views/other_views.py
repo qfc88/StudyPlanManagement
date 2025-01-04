@@ -17,7 +17,7 @@ from django.http import JsonResponse
 import json
 from ..services.sync_service import SyncService
 
-from calendarapp.models import Event, TaskMember, Task
+from calendarapp.models import Event, Task
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm
 
@@ -113,7 +113,7 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         forms = self.form_class()
         events = Event.objects.get_all_events(user=request.user)
-        running_events = Event.objects.get_running_events(user=request.user)
+        today_events = Event.objects.get_today_events(user=request.user)
         today_tasks = Task.objects.get_today_tasks(user=request.user)
         event_list = []
         for event in events:
@@ -130,7 +130,7 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
         context = {
             "form": forms, 
             "events": event_list,
-            "running_events": running_events,
+            "today_events": today_events,
             "today_tasks": today_tasks
         }
         return render(request, self.template_name, context)

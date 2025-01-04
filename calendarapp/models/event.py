@@ -13,15 +13,15 @@ class EventManager(models.Manager):
         events = Event.objects.filter(user=user, is_active=True, is_deleted=False)
         return events
 
-    def get_running_events(self, user):
-        running_events = Event.objects.filter(
+    def get_today_events(self, user):
+        today = datetime.now().date()
+        today_events = Event.objects.filter(
             user=user,
             is_active=True,
             is_deleted=False,
-            end_time__gte=datetime.now().date(),
-            start_time__lte = datetime.now().date()
-        ).order_by("start_time")
-        return running_events
+            start_time__date=today
+        ).order_by('start_time')
+        return today_events
     
     def get_completed_events(self, user):
         completed_events = Event.objects.filter(

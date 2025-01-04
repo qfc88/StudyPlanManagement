@@ -28,12 +28,16 @@ DEBUG = True
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
 
 ALLOWED_HOSTS = ["*"]
-
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}
 
 # Application definition
 
 INSTALLED_APPS = [
     "django.contrib.auth",
+    "django_extensions",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",

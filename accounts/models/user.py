@@ -23,10 +23,6 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)  # safe for multiple databases
         return user
 
-    def create_user(self, email, password=None, **extra_fields):
-        """Creates and returns a new user using an email address"""
-        return self._create_user(email, password, **extra_fields)
-
 
 
 
