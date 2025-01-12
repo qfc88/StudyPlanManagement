@@ -41,6 +41,7 @@ urlpatterns = [
     path("upcoming-tasks-list/", views.UpcomingTasksListView.as_view(), name="upcoming_tasks"),
     path('delete_task/<int:task_id>/', views.delete_task, name='delete_task'),
     path('modify_task/<int:task_id>/', views.modify_task, name='modify_task'),
+
     path('process-edusoft/', views.process_edusoft, name='process_edusoft'),
     path('process-blackboard/', views.process_blackboard, name='process_blackboard'),
 ]

@@ -28,23 +28,6 @@ class FileProcessor:
                 'message': str(e)
             }
 
-    async def process_edusoft(self, username, password):
-        try:
-            # Create directories
-            edusoft_dir = os.path.join(self.base_dir, 'edusoftweb', username)
-            os.makedirs(edusoft_dir, exist_ok=True)
-            files_dir = os.path.join(edusoft_dir, 'files')
-            os.makedirs(files_dir, exist_ok=True)
-
-            scraper = EdusoftScraper(username, password)
-            zip_path = os.path.join(edusoft_dir, f'{username}_timetable.zip')
-            scraper.scrape(zip_path)
-            return self.process_edusoft_zip(username, zip_path)
-        except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
 
     def __init__(self, user):
         self.user = user
@@ -53,27 +36,6 @@ class FileProcessor:
         os.makedirs(os.path.join(self.base_dir, 'blackboard'), exist_ok=True)
         os.makedirs(os.path.join(self.base_dir, 'edusoftweb'), exist_ok=True)
 
-    # @sync_to_async
-    # def clear_user_data(self):
-    #     """Clear all user's events and tasks before syncing"""
-    #     try:
-    #         events_deleted = Event.objects.filter(user=self.user).delete()[0]
-    #         tasks_deleted = Task.objects.filter(user=self.user).delete()[0]
-            
-    #         logger.info(f"Cleared {events_deleted} events and {tasks_deleted} tasks for user {self.user.email}")
-            
-    #         return {
-    #             'status': 'success',
-    #             'events_deleted': events_deleted,
-    #             'tasks_deleted': tasks_deleted,
-    #             'message': f'Cleared {events_deleted} events and {tasks_deleted} tasks'
-    #         }
-    #     except Exception as e:
-    #         logger.error(f"Error clearing user data: {str(e)}")
-    #         return {
-    #             'status': 'error',
-    #             'message': f'Error clearing data: {str(e)}'
-    #         }
     @sync_to_async
     def clear_event_data(self):
         try:
@@ -111,62 +73,7 @@ class FileProcessor:
                 'message': f'Error clearing data: {str(e)}'
             }
 
-    def process_edusoft_zip(self, username):
-        """Process Edusoft schedule files from zip"""
-        try:
-            # Clear existing data first
-            clear_result = self.clear_event_data()
-            if clear_result['status'] != 'success':
-                raise Exception(clear_result['message'])
-            
-            directory = os.path.join(self.base_dir, f"{username}_edusoftweb")
-            if not os.path.exists(directory):
-                logger.error(f"Directory not found: {directory}")
-                raise Exception("Directory not found")
 
-            csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
-            if not csv_files:
-                logger.error("No CSV files found in directory")
-                raise Exception("No CSV files found")
-
-            total_events = 0
-            processed_data = []
-
-            for csv_file in csv_files:
-                try:
-                    file_path = os.path.join(directory, csv_file)
-                    logger.info(f"Processing file: {csv_file}")
-                    
-                    df = pd.read_csv(file_path)
-                    semester_data = self._process_timetable(df)
-                    processed_data.extend(semester_data)
-                    
-                except Exception as e:
-                    logger.error(f"Error processing {csv_file}: {str(e)}")
-                    continue
-
-            for course in processed_data:
-                try:
-                    events_created = self._create_recurring_events(course)
-                    total_events += events_created
-                except Exception as e:
-                    logger.error(f"Error creating events for course: {str(e)}")
-                    continue
-
-            return {
-                'status': 'success',
-                'message': f'Successfully processed {len(csv_files)} files and created {total_events} events',
-                'files_processed': len(csv_files),
-                'events_created': total_events,
-                'items_cleared': clear_result['events_deleted']
-            }
-
-        except Exception as e:
-            logger.error(f"Error in process_edusoft_zip: {str(e)}")
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
 
     def process_blackboard_file(self, username):
         """Process Blackboard assignments file"""

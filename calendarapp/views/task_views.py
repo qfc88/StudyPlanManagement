@@ -1,10 +1,11 @@
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.generic import View
+
 
 from calendarapp.models import Task
 from calendarapp.forms import TaskForm
@@ -39,19 +40,25 @@ def complete_task(request, pk):
     return redirect('calendarapp:all_tasks')
 @login_required
 def delete_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    
     if request.method == 'POST':
-        task.is_active = False
-        task.is_deleted = True
-        task.save()
-        return JsonResponse({'message': 'Deleted'})
-    return JsonResponse({'message': 'Error!'}, status=400)
+        task.delete()
+        return redirect('calendarapp:all_tasks')
+        
+    return render(request, 'calendarapp/task_confirm_delete.html', {'task': task})
 @login_required
 def modify_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
+    
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return JsonResponse({'message': ''})
-    return JsonResponse({'message': 'Error!'}, status=400)
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'message': 'Task updated successfully'})
+            return redirect('calendarapp:all_tasks')
+    else:
+        form = TaskForm(instance=task)
+    
+    return render(request, 'calendarapp/modify_task.html', {'form': form})

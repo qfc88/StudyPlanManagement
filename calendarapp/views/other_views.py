@@ -21,6 +21,9 @@ from calendarapp.models import Event, Task
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm
 
+import asyncio
+
+from asgiref.sync import async_to_sync, sync_to_async
 
 
 class ExternalServicesView(LoginRequiredMixin, View):
@@ -99,8 +102,6 @@ class EventEdit(generic.UpdateView):
 @login_required(login_url="signup")
 def event_details(request, event_id):
     event = Event.objects.get(id=event_id)
-    eventmember = EventMember.objects.filter(event=event)
-    context = {"event": event, "eventmember": eventmember}
     return render(request, "event-details.html", context)
 
 
@@ -196,8 +197,11 @@ def next_day(request, event_id):
 
 
 
+@sync_to_async
 @login_required
 @require_http_methods(["POST"])
+@async_to_sync
+
 async def process_edusoft(request):
     try:
         data = json.loads(request.body)
@@ -219,8 +223,10 @@ async def process_edusoft(request):
             'message': str(e)
         }, status=500)
 
+@sync_to_async
 @login_required
 @require_http_methods(["POST"])
+@async_to_sync
 async def process_blackboard(request):
     try:
         data = json.loads(request.body)

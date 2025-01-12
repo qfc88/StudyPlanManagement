@@ -38,12 +38,10 @@ class TaskManager(models.Manager):
 class Task(TaskAbstract):
     """ Task model """
     is_completed = models.BooleanField(default=False)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
     title = models.CharField(max_length=200)
     description = models.TextField()
     deadline = models.DateTimeField()
-
 
     objects = TaskManager()
 
@@ -53,7 +51,12 @@ class Task(TaskAbstract):
     def get_absolute_url(self):
         return reverse("calendarapp:task-detail", args=(self.id,))
 
-    @property
-    def get_html_url(self):
-        url = reverse("calendarapp:task-detail", args=(self.id,))
-        return f'<a href="{url}"> {self.title} </a>'
+    def to_dict(self):
+        """Convert task to dictionary for JSON response"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'deadline': self.deadline.strftime('%Y-%m-%dT%H:%M'),
+            'is_completed': self.is_completed
+        }

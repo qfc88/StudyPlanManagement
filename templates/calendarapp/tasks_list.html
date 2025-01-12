@@ -40,11 +40,14 @@
                                 <td>{{ task.title }}</td>
                                 <td>{{ task.description|truncatewords:10 }}</td>
                                 <td>{{ task.deadline }}</td>
-                                <td>
-                                    <button onclick="showModifyTask({{ task.id }}, '{{ task.title }}', '{{ task.description }}', '{{ task.deadline|date:'Y-m-d\TH:i' }}')" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></button>
-                                    <button onclick="deleteTask({{ task.id }})" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            <td>
+                                <a href="{% url 'calendarapp:modify_task' task.id %}" class="btn btn-info btn-sm">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                                <a href="{% url 'calendarapp:delete_task' task.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </td>                            </tr>
                             {% empty %}
                             <tr>
                                 <td colspan="4" class="text-center">No tasks found.</td>
@@ -129,7 +132,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extrascripts %}
@@ -181,10 +183,11 @@ $('#saveModifyTask').click(function() {
         type: 'POST',
         data: formData,
         success: function(response) {
-            window.location.reload();
+            $('#modifyTaskModal').modal('hide');
+            [removed].reload();
         },
         error: function() {
-            alert('Error!');
+            alert&#40;'Error modifying task!'&#41;;
         }
     });
 });
